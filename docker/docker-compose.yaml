@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:11.3-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: shorten_url
+      POSTGRES_PASSWORD: shorten_url
+      POSTGRES_DB: shorten_url
