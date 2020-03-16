@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Gusarov2k/second_url"
 	"github.com/Gusarov2k/second_url/internal/db"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ func TestURLsRepo_Create(t *testing.T) {
 	if err := c.Open(PostgresTest); err != nil {
 		t.Fatal(err)
 	}
-	defer func() { _ = c.Close() }()
+	defer func() { c.Close() }()
 
 	u := shorten.URL{
 		Code: "some_code",
@@ -26,9 +27,7 @@ func TestURLsRepo_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if u.ID != 1 {
-		t.Fatal("bad url id, expected 1, but got: ", u.ID)
-	}
+	assert.EqualValues(t, 1, u.ID, "bad url id, expected 1, but got: ", u.ID)
 }
 
 func TestURLsRepo_ByCode(t *testing.T) {
@@ -38,7 +37,7 @@ func TestURLsRepo_ByCode(t *testing.T) {
 	if err := c.Open(PostgresTest); err != nil {
 		t.Fatal(err)
 	}
-	defer func() { _ = c.Close() }()
+	defer func() { c.Close() }()
 
 	u := shorten.URL{
 		Code: "some_code",
@@ -52,17 +51,10 @@ func TestURLsRepo_ByCode(t *testing.T) {
 
 	url, err := r.ByCode(context.Background(), &u)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err, "Err not nil")
+	assert.EqualValues(t, url.Code, u.Code, "urls ids are not equal")
+	assert.EqualValues(t, url.URL, u.URL, "urls are not equal")
 
-	if url.Code != u.Code {
-		t.Fatal("urls ids are not equal")
-	}
-
-	if url.URL != u.URL {
-		t.Fatal("urls are not equal")
-	}
 }
 
 func TestURLsRepo_Update(t *testing.T) {
@@ -72,29 +64,30 @@ func TestURLsRepo_Update(t *testing.T) {
 	if err := c.Open(PostgresTest); err != nil {
 		t.Fatal(err)
 	}
-	defer func() { _ = c.Close() }()
+	defer func() { c.Close() }()
+
+	u := shorten.URL{
+		Code: "some_code",
+		URL:  "http://example.org",
+	}
 
 	uSecond := shorten.URL{
-		ID: 1,
+		ID:   1,
 		Code: "second",
 		URL:  "http://example_second.ru",
 	}
 
 	r := db.NewURLRepository(c)
 
-	url, err := r.Update(context.Background(), &uSecond)
-
-	if err != nil {
+	if err := r.Create(context.Background(), &u); err != nil {
 		t.Fatal(err)
 	}
 
-	if url.Code == "second" {
-		t.Fatal("Different Code")
-	}
+	url, err := r.Update(context.Background(), &uSecond)
 
-	if url.URL == "http://example_second.ru"{
-		t.Fatal("Different Url")
-	}
+	assert.Nil(t, err, "Err not nil")
+	assert.NotEqual(t, url.URL, u.URL, "url equal updated url")
+	assert.NotEqual(t, url.Code, u.Code, "code equal updated code")
 
 }
 
@@ -105,7 +98,7 @@ func TestURLsRepo_Delete(t *testing.T) {
 	if err := c.Open(PostgresTest); err != nil {
 		t.Fatal(err)
 	}
-	defer func() { _ = c.Close() }()
+	defer func() { c.Close() }()
 
 	u := shorten.URL{
 		ID: 1,
@@ -115,9 +108,6 @@ func TestURLsRepo_Delete(t *testing.T) {
 
 	err := r.Delete(context.Background(), &u)
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	assert.Nil(t, err, "Err not nil")
 
 }

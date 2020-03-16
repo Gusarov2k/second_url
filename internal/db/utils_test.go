@@ -2,11 +2,11 @@ package db_test
 
 import (
 	"fmt"
+	"github.com/Gusarov2k/second_url/internal/db"
 	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
-
-	"github.com/Gusarov2k/second_url/internal/db"
 )
 
 var (
@@ -36,20 +36,15 @@ func clearSQLDb(t *testing.T) {
 	var err error
 
 	pool, err := sqlx.Open("postgres", PostgresSys)
-	if err != nil {
-		t.Fatal("can't connect to db")
-	}
+
+	assert.Nil(t, err, "can't connect to db")
 	defer func() { _ = pool.Close() }()
 
 	_, err = pool.Exec("DROP DATABASE IF EXISTS " + PostgresDBTest)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err, "Can't DROP DB")
 
 	_, err = pool.Exec("CREATE DATABASE " + PostgresDBTest)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err, "Can't CREATE DB")
 
 	// Create schema
 	c := db.NewClient()
@@ -67,5 +62,6 @@ func getEnv(key string, fallback string) string {
 	if value == "" {
 		value = fallback
 	}
+
 	return value
 }

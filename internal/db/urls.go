@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	_ "github.com/jmoiron/sqlx"
 	"github.com/Gusarov2k/second_url"
+	_ "github.com/jmoiron/sqlx"
 	"log"
 )
 
@@ -59,8 +59,8 @@ func (r *urlsRepo) Update(ctx context.Context, u *shorten.URL) (shorten.URL, err
 			log.Fatal(err)
 		}
 	}
-
 	return event, err
+
 }
 
 // Update URLs's information into repository.
